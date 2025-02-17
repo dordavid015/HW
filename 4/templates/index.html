@@ -1,0 +1,58 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>רשימת משימות</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .todo-form {
+            margin: 20px 0;
+        }
+        .todo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .todo-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .env-vars {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .env-var {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>רשימת משימות</h1>
+    
+    <div class="env-vars">
+        <h3>משתני סביבה:</h3>
+        {% for key, value in env_vars.items() %}
+            <div class="env-var">{{ key }}: {{ value }}</div>
+        {% endfor %}
+    </div>
+
+    <form class="todo-form" action="/add" method="POST">
+        <input type="text" name="todo" placeholder="הכנס משימה חדשה" required>
+        <button type="submit">הוסף</button>
+    </form>
+
+    <ul class="todo-list">
+        {% for todo in todos %}
+            <li class="todo-item">{{ todo }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

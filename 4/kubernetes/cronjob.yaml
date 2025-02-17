@@ -1,0 +1,30 @@
+# cronjob.yaml portion
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: health-check
+  namespace: flask-app
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-check
+            image: curlimages/curl
+            command:
+            - /bin/sh
+            - -c
+            - |
+              RESPONSE=$(curl -s http://flask-service.flask-app.svc.cluster.local/health)
+              echo "Health check response at $(date):"
+              echo $RESPONSE
+              if echo $RESPONSE | grep -q '"status":"healthy"'; then
+                echo "Service is healthy"
+                exit 0
+              else
+                echo "Service is unhealthy"
+                exit 1
+              fi
+          restartPolicy: OnFailure

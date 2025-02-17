@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: todo-app
+  namespace: flask-app
+spec:
+  serviceName: "todo-app"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-app-ss
+  template:
+    metadata:
+      labels:
+        app: todo-app-ss
+    spec:
+      containers:
+      - name: todo-app-ss
+        image: dordavidisrael/hw4:app
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: todo-storage
+          mountPath: /tmp
+        - name: log-storage
+          mountPath: /var/log/flask-app
+        env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: flask-config
+              key: APP_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: flask-config
+              key: LOG_LEVEL
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: flask-secret
+              key: DB_PASSWORD
+      volumes:
+      - name: log-storage
+        hostPath:
+          path: /var/log/flask-app
+          type: DirectoryOrCreate
+  volumeClaimTemplates:
+  - metadata:
+      name: todo-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 1Gi

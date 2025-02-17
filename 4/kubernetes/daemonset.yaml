@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: logging-daemon
+  namespace: flask-app
+spec:
+  selector:
+    matchLabels:
+      app: logging-daemon
+  template:
+    metadata:
+      labels:
+        app: logging-daemon
+    spec:
+      containers:
+      - name: logging-container
+        image: busybox
+        command: 
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            if [ -f /data/todos.txt ]; then
+              tail -F /data/todos.txt
+            else
+              echo "Waiting for todos.txt file..."
+              sleep 5
+            fi
+          done
+        volumeMounts:
+        - name: todo-storage
+          mountPath: /data
+          readOnly: true
+      volumes:
+      - name: todo-storage
+        persistentVolumeClaim:
+          claimName: todo-pvc
